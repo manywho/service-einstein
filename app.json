@@ -1,0 +1,8 @@
+{
+  "name": "ManyWho Einstein Service",
+  "description": "A plugin that allows your ManyWho Flows to integrate with the Salesforce Einstein AI Service",
+  "repository": "https://github.com/manywho/service-einstein",
+  "logo": "https://s3.amazonaws.com/manywho-service-assets/icons/service-einstein.png",
+  "keywords": ["manywho", "einstein", "ai", "salesforce", "plugin", "workflow"]
+}
+
