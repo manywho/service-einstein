@@ -5,7 +5,7 @@ import com.manywho.sdk.services.actions.Action;
 
 import java.util.List;
 
-@Action.Metadata(name = "Prediction for Intent", summary = "Create an intent prediction for a given string", uri = "language/prediction/intent")
+@Action.Metadata(name = "Prediction for Intent", summary = "Get an intent prediction for a given string", uri = "language/prediction/intent")
 public class PredictionForIntent implements Action {
     public static class Inputs {
         @Action.Input(name = "Document", contentType = ContentType.String)

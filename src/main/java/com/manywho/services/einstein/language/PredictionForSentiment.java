@@ -5,7 +5,7 @@ import com.manywho.sdk.services.actions.Action;
 
 import java.util.List;
 
-@Action.Metadata(name = "Prediction for Sentiment", summary = "Create an sentiment prediction for a given string", uri = "language/prediction/sentiment")
+@Action.Metadata(name = "Prediction for Sentiment", summary = "Get a sentiment prediction for a given string", uri = "language/prediction/sentiment")
 public class PredictionForSentiment implements Action {
     public static class Inputs {
         @Input(name = "Document", contentType = ContentType.String)
