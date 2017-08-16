@@ -1,4 +1,4 @@
-package com.manywho.services.einstein.vision;
+package com.manywho.services.einstein.language;
 
 import com.google.inject.Provider;
 import com.manywho.sdk.api.run.elements.config.ServiceRequest;
@@ -8,42 +8,51 @@ import com.manywho.sdk.services.actions.ActionResponse;
 import com.manywho.services.einstein.ApplicationConfiguration;
 import com.manywho.services.einstein.authentication.AuthenticationManager;
 import com.manywho.services.einstein.einstein.EinsteinClient;
-import com.manywho.services.einstein.vision.PredictionWithImageUrl.Inputs;
-import com.manywho.services.einstein.vision.PredictionWithImageUrl.Outputs;
+import com.manywho.services.einstein.language.PredictionForIntentSimple.Inputs;
+import com.manywho.services.einstein.language.PredictionForIntentSimple.Outputs;
 import lombok.experimental.var;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class PredictionWithImageUrlCommand implements ActionCommand<ApplicationConfiguration, PredictionWithImageUrl, Inputs, Outputs> {
+public class PredictionForIntentSimpleCommand implements ActionCommand<ApplicationConfiguration, PredictionForIntentSimple, Inputs, Outputs> {
     private final Provider<AuthenticatedWho> authenticatedWhoProvider;
     private final EinsteinClient einsteinClient;
 
     @Inject
-    public PredictionWithImageUrlCommand(Provider<AuthenticatedWho> authenticatedWhoProvider, EinsteinClient einsteinClient) {
+    public PredictionForIntentSimpleCommand(Provider<AuthenticatedWho> authenticatedWhoProvider, EinsteinClient einsteinClient) {
         this.authenticatedWhoProvider = authenticatedWhoProvider;
         this.einsteinClient = einsteinClient;
     }
 
     @Override
-    public ActionResponse<Outputs> execute(ApplicationConfiguration configuration, ServiceRequest request, Inputs inputs) {
+    public ActionResponse<Outputs> execute(ApplicationConfiguration configuration, ServiceRequest serviceRequest, Inputs inputs) {
         var user = authenticatedWhoProvider.get();
         var token = user.getToken();
 
         // If the user is running in public mode, we need to get the token using the configuration information
         if (token != null &&
-            token.toLowerCase().equalsIgnoreCase("none")) {
+                token.toLowerCase().equalsIgnoreCase("none")) {
             token = AuthenticationManager.getToken(null, configuration);
         }
 
         var parameters = new HashMap<String, String>();
+        parameters.put("document", inputs.getDocument());
         parameters.put("modelId", inputs.getModel());
-        parameters.put("sampleLocation", inputs.getUrl());
 
-        var probabilities = einsteinClient.fetchPredictionResult(token, "/vision/predict", parameters);
+        var probabilities = einsteinClient.fetchPredictionResult(token, "/language/intent", parameters);
+        String intent;
 
-        return new ActionResponse<>(new Outputs(probabilities));
+        // Get the top probability from the list
+        if (probabilities != null &&
+            probabilities.size() > 0) {
+            intent = probabilities.get(0).getLabel();
+        } else {
+            // Reply with a blank
+            intent = "";
+        }
+
+        return new ActionResponse<>(new Outputs(intent));
     }
-
-
 }

@@ -15,4 +15,8 @@ public class Probability implements Type {
         this.label = label;
         this.probability = probability;
     }
+
+    public String getLabel() {
+        return this.label;
+    }
 }

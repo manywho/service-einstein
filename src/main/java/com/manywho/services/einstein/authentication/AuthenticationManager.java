@@ -37,6 +37,32 @@ public class AuthenticationManager {
     public AuthenticatedWhoResult authenticate(AuthenticationCredentials credentials) {
         ApplicationConfiguration configuration = configurationParser.from(credentials);
 
+        // Get the token for this user
+        String token = getToken(credentials.getUsername(), configuration);
+
+        // If we have a token, we're logged in
+        if (token != null &&
+            token.trim().length() > 0) {
+            AuthenticatedWhoResult authenticatedWhoResult = new AuthenticatedWhoResult();
+            authenticatedWhoResult.setDirectoryId("einstein");
+            authenticatedWhoResult.setDirectoryName("Einstein");
+            authenticatedWhoResult.setEmail(credentials.getUsername());
+            authenticatedWhoResult.setFirstName("Einstein");
+            authenticatedWhoResult.setIdentityProvider("?");
+            authenticatedWhoResult.setLastName("User");
+            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
+            authenticatedWhoResult.setTenantName("?");
+            authenticatedWhoResult.setToken(token);
+            authenticatedWhoResult.setUserId(credentials.getUsername());
+            authenticatedWhoResult.setUsername(credentials.getUsername());
+
+            return authenticatedWhoResult;
+        }
+
+        return AuthenticatedWhoResult.createDeniedResult();
+    }
+
+    public static String getToken(String username, ApplicationConfiguration configuration) {
         // Try to parse and load the given private key
         Key key;
         try {
@@ -48,9 +74,15 @@ public class AuthenticationManager {
             throw new RuntimeException("Unable to load the private key", e);
         }
 
+        // If the user has provided an account id in the configuration, we use that as a stored credential
+        if (username == null ||
+            username.trim().length() == 0) {
+            username = configuration.getAccountId();
+        }
+
         // Generate a JWT assertion
         var assertion = Jwts.builder()
-                .setSubject(credentials.getUsername())
+                .setSubject(username)
                 .setAudience("https://api.einstein.ai/v2/oauth2/token")
                 .setExpiration(Date.from(LocalDateTime.now().plusDays(2).toInstant(ZoneOffset.UTC)))
                 .signWith(SignatureAlgorithm.RS256, key)
@@ -71,23 +103,6 @@ public class AuthenticationManager {
             throw new RuntimeException("Unable to successfully get an access token", e);
         }
 
-        if (result != null) {
-            AuthenticatedWhoResult authenticatedWhoResult = new AuthenticatedWhoResult();
-            authenticatedWhoResult.setDirectoryId("einstein");
-            authenticatedWhoResult.setDirectoryName("Einstein");
-            authenticatedWhoResult.setEmail(credentials.getUsername());
-            authenticatedWhoResult.setFirstName("Einstein");
-            authenticatedWhoResult.setIdentityProvider("?");
-            authenticatedWhoResult.setLastName("User");
-            authenticatedWhoResult.setStatus(AuthenticatedWhoResult.AuthenticationStatus.Authenticated);
-            authenticatedWhoResult.setTenantName("?");
-            authenticatedWhoResult.setToken(result.get("access_token").asText());
-            authenticatedWhoResult.setUserId(credentials.getUsername());
-            authenticatedWhoResult.setUsername(credentials.getUsername());
-
-            return authenticatedWhoResult;
-        }
-
-        return AuthenticatedWhoResult.createDeniedResult();
+        return result.get("access_token").asText();
     }
 }
