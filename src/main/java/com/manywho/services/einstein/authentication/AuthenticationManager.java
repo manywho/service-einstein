@@ -103,6 +103,15 @@ public class AuthenticationManager {
             throw new RuntimeException("Unable to successfully get an access token", e);
         }
 
-        return result.get("access_token").asText();
+        var accessToken = "";
+        if (result != null &&
+            result.get("access_token") != null &&
+            result.get("access_token").asText().trim().length() > 0) {
+            accessToken = result.get("access_token").asText();
+        } else {
+            throw new RuntimeException("Unable to login to Einstein.");
+        }
+
+        return accessToken;
     }
 }
