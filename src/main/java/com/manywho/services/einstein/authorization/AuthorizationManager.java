@@ -4,27 +4,21 @@ import com.manywho.sdk.api.AuthorizationType;
 import com.manywho.sdk.api.run.elements.type.ObjectDataRequest;
 import com.manywho.sdk.api.run.elements.type.ObjectDataResponse;
 import com.manywho.sdk.api.security.AuthenticatedWho;
-import com.manywho.sdk.services.configuration.ConfigurationParser;
 import com.manywho.sdk.services.types.TypeBuilder;
 import com.manywho.sdk.services.types.system.$User;
-import com.manywho.services.einstein.ApplicationConfiguration;
 
 import javax.inject.Inject;
 
 public class AuthorizationManager {
     private final TypeBuilder typeBuilder;
-    private final ConfigurationParser configurationParser;
 
     @Inject
-    public AuthorizationManager(TypeBuilder typeBuilder, ConfigurationParser configurationParser) {
+    public AuthorizationManager(TypeBuilder typeBuilder) {
         this.typeBuilder = typeBuilder;
-        this.configurationParser = configurationParser;
     }
 
     public ObjectDataResponse authorize(AuthenticatedWho authenticatedWho, ObjectDataRequest request) {
         String status = "401";
-
-        ApplicationConfiguration configuration = configurationParser.from(request);
 
         switch (request.getAuthorization().getGlobalAuthenticationType()) {
             case AllUsers:
@@ -47,8 +41,8 @@ public class AuthorizationManager {
 
         $User user = new $User();
         user.setAuthenticationType(AuthorizationType.UsernamePassword);
-        user.setDirectoryId("manywho-identity");
-        user.setDirectoryName("ManyWho Identity");
+        user.setDirectoryId("einstein");
+        user.setDirectoryName("Einstein");
         user.setUserId("");
         user.setStatus(status);
 

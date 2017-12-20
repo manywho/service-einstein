@@ -4,7 +4,7 @@ import com.manywho.sdk.api.ContentType;
 import com.manywho.sdk.services.configuration.Configuration;
 
 public class ApplicationConfiguration implements Configuration {
-    @Configuration.Setting(name = "Account Id", contentType = ContentType.String)
+    @Configuration.Setting(name = "Account ID", contentType = ContentType.String)
     private String accountId;
 
     @Configuration.Setting(name = "Private Key", contentType = ContentType.String)

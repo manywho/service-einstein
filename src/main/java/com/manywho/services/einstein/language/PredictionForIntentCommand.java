@@ -6,7 +6,6 @@ import com.manywho.sdk.api.security.AuthenticatedWho;
 import com.manywho.sdk.services.actions.ActionCommand;
 import com.manywho.sdk.services.actions.ActionResponse;
 import com.manywho.services.einstein.ApplicationConfiguration;
-import com.manywho.services.einstein.authentication.AuthenticationManager;
 import com.manywho.services.einstein.einstein.EinsteinClient;
 import com.manywho.services.einstein.language.PredictionForIntent.Inputs;
 import com.manywho.services.einstein.language.PredictionForIntent.Outputs;
@@ -27,13 +26,11 @@ public class PredictionForIntentCommand implements ActionCommand<ApplicationConf
 
     @Override
     public ActionResponse<Outputs> execute(ApplicationConfiguration configuration, ServiceRequest serviceRequest, Inputs inputs) {
-        var user = authenticatedWhoProvider.get();
-        var token = user.getToken();
+        var token = authenticatedWhoProvider.get().getToken();
 
         // If the user is running in public mode, we need to get the token using the configuration information
-        if (token != null &&
-            token.toLowerCase().equalsIgnoreCase("none")) {
-            token = AuthenticationManager.getToken(null, configuration);
+        if (token != null && token.equalsIgnoreCase("none")) {
+            token = einsteinClient.getToken(null, configuration);
         }
 
         var parameters = new HashMap<String, String>();
